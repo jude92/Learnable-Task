@@ -62,7 +62,7 @@ class roomControlls {
   }
 
   // get all rooms
-  async getAllrooms(req, res) {
+  async getAllRooms(req, res) {
     const query = JSON.parse(req.query) || {};
     const allRooms = await room.getAllRooms(query);
 
