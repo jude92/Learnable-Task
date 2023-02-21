@@ -7,11 +7,32 @@ const {
   getRoom,
   getAllRooms,
 } = require("../controllers/roomController");
+const {
+  adminAccessRole,
+  adminGuestAccessRole,
+  authentication,
+} = require("../middlewares/authorization");
+const {
+  roomValidator,
+  updateRoomValidator,
+} = require("../validator/validator");
 
-router.post("/", createRoom);
-router.patch("/:id", updateRoom);
-router.delete("/:id", deleteRoom);
-router.get("/:id", getRoom);
-router.get("/", getAllRooms);
+router.post("/", [roomValidator, authentication, adminAccessRole], createRoom);
+router.patch(
+  "/:id",
+  [updateRoomValidator, authentication, adminAccessRole],
+  updateRoom
+);
+router.delete("/:id", [authentication, adminAccessRole], deleteRoom);
+router.get(
+  "/:id",
+  [authentication, adminAccessRole, adminGuestAccessRole],
+  getRoom
+);
+router.get(
+  "/",
+  [authentication, adminAccessRole, adminGuestAccessRole],
+  getAllRooms
+);
 
 module.exports = router;

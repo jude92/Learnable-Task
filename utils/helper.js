@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { SECRET } = require("../config");
 
-const signJWT = async (userId, userRole) => {
+const signJWT = (userId, userRole) => {
   try {
     return jwt.sign({ userId, userRole }, SECRET, { expiresIn: "1hr" });
   } catch (error) {
@@ -9,7 +9,7 @@ const signJWT = async (userId, userRole) => {
   }
 };
 
-const decodeJWT = async (token) => {
+const decodeJWT = (token) => {
   try {
     const payload = jwt.verify(token, SECRET);
     return payload;

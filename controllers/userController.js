@@ -9,6 +9,15 @@ class UserController {
       data: user,
     });
   }
+
+  async userLogin(req, res) {
+    const token = await userService.userLogin(req.body);
+    res.status(201).json({
+      success: true,
+      message: "User loggedIn successfully",
+      data: token,
+    });
+  }
 }
 
 module.exports = new UserController();
