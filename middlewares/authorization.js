@@ -1,39 +1,66 @@
-const { decodeJWT } = require("../utils/helper");
+const { decodeJWT, expressResponse } = require("../utils/helper");
 
-const authentication = (req, res, next) => {
-  const token = req.headers.authorization.split(" ")[1];
+function authentication(req, res, next) {
+  try {
+    const token = req.headers.authorization
+      ? req.headers.authorization.split(" ")[1]
+      : null;
 
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: "User not authenticated",
-      data: null,
-    });
+    if (!token) {
+      return throwErrorOnAccessDenied(res, 401, "User not authenticated");
+    }
+
+    //decode token
+    const data = decodeJWT(token);
+
+    if (data) {
+      return next(data.userRole);
+    }
+  } catch (error) {
+    throwSystemError(res, error);
   }
+}
 
-  const data = decodeJWT(token);
+function adminAccessRole(role, req, res, next) {
+  try {
+    if (role == "admin") {
+      return next();
+    }
 
-  if (data) {
-    return next(data.role);
+    return throwErrorOnAccessDenied(
+      res,
+      401,
+      "You are not authorised to access this resource",
+      false
+    );
+  } catch (error) {
+    throwSystemError(res, error);
   }
+}
 
-  throw new Error("Something bad happened");
-};
+function adminGuestAccessRole(role, req, res, next) {
+  try {
+    if (role == "admin" || role == "guest") {
+      return next();
+    }
 
-const adminAccessRole = (role, req, res, next) => {
-  if (role == "admin") {
-    return next();
+    return throwErrorOnAccessDenied(
+      res,
+      401,
+      "You are not authorised to access this resource",
+      false
+    );
+  } catch (error) {
+    throwSystemError(res, error);
   }
+}
 
-  throw new Error("You cannot access this resource");
-};
+function throwErrorOnAccessDenied(res, code, message, state) {
+  return expressResponse(res, code, message, state);
+}
 
-const adminGuestAccessRole = (role, req, res, next) => {
-  if (role == "admin" || role == "guest") {
-    return next();
-  }
-
-  throw new Error("You cannot access this resource");
-};
+function throwSystemError(res, error) {
+  return expressResponse(res, 500, error.message);
+}
 
 module.exports = { authentication, adminAccessRole, adminGuestAccessRole };

@@ -8,10 +8,11 @@ class RoomServices {
 
   // edit a room
   async updateRoom(id, roomData) {
+    console.log("-----> ", id, roomData);
     return await RoomsModel.findByIdAndUpdate(
       id,
       {
-        $set: { roomData },
+        $set: { ...roomData },
       },
       { new: true }
     );
@@ -23,22 +24,33 @@ class RoomServices {
   }
 
   // get a room
-  async getRoom(filter) {
-    return await RoomsModel.findOne(filter);
+  async getRoom(id) {
+    const result = await RoomsModel.findById(id)
+      .populate("roomType", "name -_id")
+      .lean();
+
+    return {
+      ...result,
+      ...{ roomType: result.roomType.name },
+    };
+  }
+
+  // get a room
+  async getRoomByName(name) {
+    return await RoomsModel.findOne({ name });
   }
 
   // get many books
   async getAllRooms(filter) {
     const { search, roomType, minPrice, maxPrice } = filter;
-
     if (maxPrice && !minPrice) minPrice = 0;
 
     const query = [
       {
         $lookup: {
-          from: "roomTypes",
+          from: "roomtypes",
           localField: "roomType",
-          foriegnField: "_id",
+          foreignField: "_id",
           as: "_roomType",
         },
       },
@@ -47,9 +59,13 @@ class RoomServices {
       },
     ];
 
-    if (search) query.push({ $match: { name: search.toUpperCase() } });
+    if (search)
+      query.push({ $match: { name: { $regex: search, $options: "$i" } } });
 
-    if (roomType) query.push({ $match: { _roomType: roomType } });
+    if (roomType)
+      query.push({
+        $match: { "_roomType.name": { $regex: roomType, $options: "$i" } },
+      });
 
     if (maxPrice && minPrice) {
       query.push({

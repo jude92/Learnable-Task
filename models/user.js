@@ -25,7 +25,7 @@ User.pre("save", function (next) {
   });
 });
 
-User.methods.comparePassword = async function (userPassword, cb) {
+User.methods.comparePassword = async function (userPassword) {
   try {
     return bcrypt.compare(userPassword, this.password);
   } catch (err) {

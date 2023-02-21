@@ -12,15 +12,20 @@ const {
   adminGuestAccessRole,
   authentication,
 } = require("../middlewares/authorization");
+const { validate } = require("../validator/validator");
 const {
   roomValidator,
   updateRoomValidator,
-} = require("../validator/validator");
+} = require("../validator/schemas/room.schema");
 
-router.post("/", [roomValidator, authentication, adminAccessRole], createRoom);
+router.post(
+  "/",
+  [validate(roomValidator), authentication, adminAccessRole],
+  createRoom
+);
 router.patch(
   "/:id",
-  [updateRoomValidator, authentication, adminAccessRole],
+  [validate(updateRoomValidator), authentication, adminAccessRole],
   updateRoom
 );
 router.delete("/:id", [authentication, adminAccessRole], deleteRoom);

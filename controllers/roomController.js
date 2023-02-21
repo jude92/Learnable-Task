@@ -1,75 +1,88 @@
-const room = require("../services/room");
+const roomService = require("../services/room");
+const { expressResponse } = require("../utils/helper");
 
 class roomControlls {
   // create room
   async createRoom(req, res) {
     const reqBody = req.body;
 
-    const existingRoom = await room.getRoom({
-      name: reqBody.name.toUpperCase(),
-    });
+    const existingRoom = await roomService.getRoomByName(
+      reqBody.name.toUpperCase()
+    );
 
     if (existingRoom) {
-      return res.status(403).json({
-        success: false,
-        message: "room already exist",
-      });
+      return expressResponse(res, 403, "Room already exist");
     }
 
     reqBody.name = reqBody.name.toUpperCase();
-    const newRoom = await room.createRoom(reqBody);
+    const newRoom = await roomService.createRoom(reqBody);
 
-    res.status(201).json({
-      success: true,
-      message: "romm created successfully",
-      data: newRoom,
-    });
+    return expressResponse(
+      res,
+      201,
+      "Romm created successfully",
+      true,
+      newRoom
+    );
   }
 
   // update room
   async updateRoom(req, res) {
     const { body } = req;
-    const updatedRoom = await room.updateRoom(req.params.id, body);
+    const updatedRoom = await roomService.updateRoom(req.params.id, body);
 
-    return res.status(200).json({
-      success: true,
-      message: "room updatedsuccessfully",
-      data: updatedRoom,
-    });
+    return expressResponse(
+      res,
+      200,
+      "Room updated successfully",
+      true,
+      updatedRoom
+    );
   }
+
   // delete a room
   async deleteRoom(req, res) {
-    const roomToDelete = await room.deleteRoom(req.params.id);
+    const roomToDelete = await roomService.deleteRoom(req.params.id);
 
-    return res.status(200).json({
-      success: true,
-      message: " room deleted successfully",
-      data: roomToDelete,
-    });
+    return expressResponse(
+      res,
+      200,
+      "Room deleted successfully",
+      true,
+      roomToDelete
+    );
   }
 
   // get a room
   async getRoom(req, res) {
-    const query = req.query;
-    const room = await room.getRoom(JSON.parse(query));
+    const room = await roomService.getRoom(req.params.id);
 
-    res.status(200).json({
-      success: true,
-      message: " room succeessfully retrieved",
-      data: room,
-    });
+    if (!room) {
+      return expressResponse(res, 404, "Room not found");
+    }
+
+    return expressResponse(
+      res,
+      200,
+      "Room succeessfully retrieved",
+      true,
+      room
+    );
   }
 
   // get all rooms
   async getAllRooms(req, res) {
-    const query = JSON.parse(req.query) || {};
-    const allRooms = await room.getAllRooms(query);
+    const query = req.query;
+    const allRooms = await roomService.getAllRooms(query);
 
-    res.status(200).json({
-      success: true,
-      message: "suucess with all rooms",
-      data: allRooms,
-    });
+    return expressResponse(
+      res,
+      200,
+      "Rooms fetched succeessfully",
+      true,
+      allRooms
+    );
   }
 }
+
 module.exports = new roomControlls();

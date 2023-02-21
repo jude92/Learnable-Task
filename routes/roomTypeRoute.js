@@ -8,7 +8,14 @@ const {
   adminAccessRole,
 } = require("../middlewares/authorization");
 
+const { validate } = require("../validator/validator");
+const { roomTypeValidation } = require("../validator/schemas/roomType.schema");
+
 router.get("/", [authentication, adminAccessRole], getAllRoomType);
-router.post("/", [authentication, adminAccessRole], createRoomType);
+router.post(
+  "/",
+  [validate(roomTypeValidation), authentication, adminAccessRole],
+  createRoomType
+);
 
 module.exports = router;

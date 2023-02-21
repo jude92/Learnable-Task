@@ -18,4 +18,12 @@ const decodeJWT = (token) => {
   }
 };
 
-module.exports = { signJWT, decodeJWT };
+const expressResponse = (res, statusCode, message, state, data = null) => {
+  return res.status(statusCode || 500).json({
+    success: !!state || false,
+    message: message || "Something bad happened, please conatact admin",
+    data,
+  });
+};
+
+module.exports = { signJWT, decodeJWT, expressResponse };
