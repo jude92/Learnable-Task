@@ -1,6 +1,6 @@
 const joi = require("joi");
 
-const roomValidator = (req, res) => {
+const roomValidator = (req, res, next) => {
   const schema = joi.object().keys({
     name: joi.string().required(),
     price: joi.number().required(),
@@ -20,7 +20,7 @@ const roomValidator = (req, res) => {
   next();
 };
 
-const updateRoomValidator = (req, res) => {
+const updateRoomValidator = (req, res, next) => {
   const schema = joi.object().keys({
     name: joi.string().optional(),
     price: joi.number().optional(),
@@ -40,7 +40,7 @@ const updateRoomValidator = (req, res) => {
   next();
 };
 
-const roomTypeValidation = (req, res) => {
+const roomTypeValidation = (req, res, next) => {
   const schema = joi.object().keys({
     name: joi.string().required(),
   });
