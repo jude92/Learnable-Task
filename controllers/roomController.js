@@ -17,7 +17,6 @@ class roomControlls {
     }
 
     reqBody.name = reqBody.name.toUpperCase();
-    console.log(reqBody);
     const newRoom = await room.createRoom(reqBody);
 
     res.status(201).json({

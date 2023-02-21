@@ -34,12 +34,9 @@ class UserService {
         throw new Error("User does not exist");
       }
 
-      const flag = await User.comparePassword(password, (err, result) => {
-        if (err) throw err;
-        return result;
-      });
+      const isVaalidPassword = await user.comparePassword(password);
 
-      if (!flag) {
+      if (!isVaalidPassword) {
         throw new Error("Invalid password");
       }
 
@@ -47,7 +44,7 @@ class UserService {
 
       return token;
     } catch (error) {
-      console.log(error);
+      throw new Error("User not found");
     }
   }
 }

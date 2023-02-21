@@ -13,8 +13,8 @@ const User = mongoose.Schema({
   role: { type: String, default: "guest" },
 });
 
-User.pre("save", (next) => {
-  bcrypt.genSalt(HASGNUMBER, (err, salt) => {
+User.pre("save", function (next) {
+  bcrypt.genSalt(+HASGNUMBER, (err, salt) => {
     if (err) return next(err);
 
     bcrypt.hash(this.password, salt, (error, hash) => {
@@ -25,11 +25,12 @@ User.pre("save", (next) => {
   });
 });
 
-User.methods.comparePassword = (userPassword, cb) => {
-  bcrypt.compare(userPassword, this.password, function (err, isMatch) {
-    if (err) return cb(err);
-    cb(null, isMatch);
-  });
+User.methods.comparePassword = async function (userPassword, cb) {
+  try {
+    return bcrypt.compare(userPassword, this.password);
+  } catch (err) {
+    return false;
+  }
 };
 
 const UserModel = mongoose.model("user", User);
